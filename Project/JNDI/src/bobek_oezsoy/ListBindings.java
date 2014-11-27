@@ -32,16 +32,15 @@ package bobek_oezsoy;
  */
 
 import javax.naming.*;
-import javax.naming.ldap.*;
+
 import java.util.Hashtable;
-import java.awt.Button;
 
 /**
- * Demonstrates how to look up an object.
+ * Demonstrates how to list the bindings in a context.
  * 
- * usage: java Lookup
+ * usage: java ListBindings
  */
-class Lookup {
+class ListBindings {
 	public static void main(String[] args) {
 
 		// Set up the environment for creating the initial context
@@ -55,16 +54,20 @@ class Lookup {
 			// Create the initial context
 			Context ctx = new InitialContext(env);
 
-			// Perform lookup and cast to target type
-			LdapContext b = (LdapContext) ctx
-					.lookup("cn=Rosanna Lee,ou=People,o=jndi_dezsys");
+			// Get listing of context
+			NamingEnumeration bindings = ctx
+					.listBindings("ou=People,o=jndi_dezsys");
 
-			System.out.println(b);
+			// Go through each item in list
+			while (bindings.hasMore()) {
+				Binding bd = (Binding) bindings.next();
+				System.out.println(bd.getName() + ": " + bd.getObject());
+			}
 
 			// Close the context when we're done
 			ctx.close();
 		} catch (NamingException e) {
-			System.out.println("Lookup failed: " + e);
+			System.out.println("List Bindings failed: " + e);
 		}
 	}
 }

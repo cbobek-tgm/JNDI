@@ -32,16 +32,18 @@ package bobek_oezsoy;
  */
 
 import javax.naming.*;
-import javax.naming.ldap.*;
+import javax.naming.directory.*;
+
 import java.util.Hashtable;
-import java.awt.Button;
 
 /**
- * Demonstrates how to look up an object.
+ * Demonstrates how to perform a search by specifying a set of attributes to be
+ * matched. Returns all attributes of objects that contain those matching
+ * attributes.
  * 
- * usage: java Lookup
+ * usage: java SearchRetAll
  */
-class Lookup {
+class SearchRetAll {
 	public static void main(String[] args) {
 
 		// Set up the environment for creating the initial context
@@ -52,19 +54,28 @@ class Lookup {
 				"ldap://192.168.64.135:389/dc=jndi_dezsys");
 
 		try {
-			// Create the initial context
-			Context ctx = new InitialContext(env);
+			// Create initial context
+			DirContext ctx = new InitialDirContext(env);
 
-			// Perform lookup and cast to target type
-			LdapContext b = (LdapContext) ctx
-					.lookup("cn=Rosanna Lee,ou=People,o=jndi_dezsys");
+			// Specify the attributes to match
+			// Ask for objects with the surname ("sn") attribute
+			// with the value "Lee"
+			// and the "mail" attribute.
+			Attributes matchAttrs = new BasicAttributes(true); // ignore case
+			matchAttrs.put(new BasicAttribute("sn", "Lee"));
+			matchAttrs.put(new BasicAttribute("mail"));
 
-			System.out.println(b);
+			// Search for objects that have those matching attributes
+			NamingEnumeration answer = ctx.search("ou=People,o=jndi_dezsys",
+					matchAttrs);
+
+			// Print the answer
+			Search.printSearchEnumeration(answer);
 
 			// Close the context when we're done
 			ctx.close();
-		} catch (NamingException e) {
-			System.out.println("Lookup failed: " + e);
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 	}
 }

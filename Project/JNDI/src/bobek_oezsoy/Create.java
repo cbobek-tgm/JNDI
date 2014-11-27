@@ -32,16 +32,17 @@ package bobek_oezsoy;
  */
 
 import javax.naming.*;
-import javax.naming.ldap.*;
+import javax.naming.directory.*;
+
 import java.util.Hashtable;
-import java.awt.Button;
 
 /**
- * Demonstrates how to look up an object.
+ * Demonstrates how to create a new subcontext called "ou=NewOu" with some
+ * attributes. (Run Destroy after this to remove the subcontext).
  * 
- * usage: java Lookup
+ * usage: java Create
  */
-class Lookup {
+class Create {
 	public static void main(String[] args) {
 
 		// Set up the environment for creating the initial context
@@ -50,21 +51,39 @@ class Lookup {
 				"com.sun.jndi.ldap.LdapCtxFactory");
 		env.put(Context.PROVIDER_URL,
 				"ldap://192.168.64.135:389/dc=jndi_dezsys");
+		env.put(Context.SECURITY_AUTHENTICATION, "simple");
+		env.put(Context.SECURITY_PRINCIPAL, "cn=admin,dc=jndi_dezsys");
+		env.put(Context.SECURITY_CREDENTIALS, "admin");
 
 		try {
 			// Create the initial context
-			Context ctx = new InitialContext(env);
+			DirContext ctx = new InitialDirContext(env);
 
-			// Perform lookup and cast to target type
-			LdapContext b = (LdapContext) ctx
-					.lookup("cn=Rosanna Lee,ou=People,o=jndi_dezsys");
+			// Create attributes to be associated with the new context
+			Attributes attrs = new BasicAttributes(true); // case-ignore
+			Attribute objclass = new BasicAttribute("objectclass");
+			objclass.add("top");
+			objclass.add("organizationalUnit");
+			attrs.put(objclass);
 
-			System.out.println(b);
+			// Create the context
+			Context result = ctx.createSubcontext("ou=NewOu,o=jndi_dezsys",
+					attrs);
 
-			// Close the context when we're done
+			// Check that it was created by listing its parent
+			NamingEnumeration list = ctx.list("");
+
+			// Go through each item in list
+			while (list.hasMore()) {
+				NameClassPair nc = (NameClassPair) list.next();
+				System.out.println(nc);
+			}
+
+			// Close the contexts when we're done
+			result.close();
 			ctx.close();
 		} catch (NamingException e) {
-			System.out.println("Lookup failed: " + e);
+			System.out.println("Create failed: " + e);
 		}
 	}
 }

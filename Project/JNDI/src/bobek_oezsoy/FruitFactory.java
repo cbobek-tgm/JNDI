@@ -32,39 +32,31 @@ package bobek_oezsoy;
  */
 
 import javax.naming.*;
-import javax.naming.ldap.*;
+import javax.naming.spi.ObjectFactory;
 import java.util.Hashtable;
-import java.awt.Button;
 
 /**
- * Demonstrates how to look up an object.
- * 
- * usage: java Lookup
+ * This is an object factory that when given a reference for a Fruit object,
+ * will create an instance of the corresponding Fruit.
  */
-class Lookup {
-	public static void main(String[] args) {
+public class FruitFactory implements ObjectFactory {
 
-		// Set up the environment for creating the initial context
-		Hashtable<String, Object> env = new Hashtable<String, Object>(11);
-		env.put(Context.INITIAL_CONTEXT_FACTORY,
-				"com.sun.jndi.ldap.LdapCtxFactory");
-		env.put(Context.PROVIDER_URL,
-				"ldap://192.168.64.135:389/dc=jndi_dezsys");
+	public FruitFactory() {
+	}
 
-		try {
-			// Create the initial context
-			Context ctx = new InitialContext(env);
+	public Object getObjectInstance(Object obj, Name name, Context ctx,
+			Hashtable<?, ?> env) throws Exception {
 
-			// Perform lookup and cast to target type
-			LdapContext b = (LdapContext) ctx
-					.lookup("cn=Rosanna Lee,ou=People,o=jndi_dezsys");
+		if (obj instanceof Reference) {
+			Reference ref = (Reference) obj;
 
-			System.out.println(b);
-
-			// Close the context when we're done
-			ctx.close();
-		} catch (NamingException e) {
-			System.out.println("Lookup failed: " + e);
+			if (ref.getClassName().equals(Fruit.class.getName())) {
+				RefAddr addr = ref.get("fruit");
+				if (addr != null) {
+					return new Fruit((String) addr.getContent());
+				}
+			}
 		}
+		return null;
 	}
 }

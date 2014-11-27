@@ -31,40 +31,52 @@ package bobek_oezsoy;
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import javax.naming.*;
-import javax.naming.ldap.*;
 import java.util.Hashtable;
-import java.awt.Button;
+
+import javax.naming.Context;
+import javax.naming.NamingException;
+import javax.naming.directory.BasicAttribute;
+import javax.naming.directory.DirContext;
+import javax.naming.directory.InitialDirContext;
+import javax.naming.directory.ModificationItem;
 
 /**
- * Demonstrates how to look up an object.
+ * Demonstrates how to modify an attribute.
  * 
- * usage: java Lookup
+ * usage: java Modify
  */
-class Lookup {
-	public static void main(String[] args) {
 
+class ModifyAttrs {
+	public static void main(String[] args) {
 		// Set up the environment for creating the initial context
 		Hashtable<String, Object> env = new Hashtable<String, Object>(11);
 		env.put(Context.INITIAL_CONTEXT_FACTORY,
 				"com.sun.jndi.ldap.LdapCtxFactory");
 		env.put(Context.PROVIDER_URL,
 				"ldap://192.168.64.135:389/dc=jndi_dezsys");
+		env.put(Context.SECURITY_AUTHENTICATION, "simple");
+		env.put(Context.SECURITY_PRINCIPAL, "cn=admin,dc=jndi_dezsys");
+		env.put(Context.SECURITY_CREDENTIALS, "admin");
 
 		try {
 			// Create the initial context
-			Context ctx = new InitialContext(env);
+			DirContext ctx = new InitialDirContext(env);
 
-			// Perform lookup and cast to target type
-			LdapContext b = (LdapContext) ctx
-					.lookup("cn=Rosanna Lee,ou=People,o=jndi_dezsys");
+			// Specify the changes to make
+			ModificationItem[] mods = new ModificationItem[1];
 
-			System.out.println(b);
+			// Replace the "mail" attribute with a new value
+			mods[0] = new ModificationItem(DirContext.REPLACE_ATTRIBUTE,
+					new BasicAttribute("mail",
+							"Ted.Geisel@jndi_dezsys.example.com"));
+
+			// Perform the requested modifications on the named object
+			ctx.modifyAttributes("cn=Ted Geisel,ou=People,o=jndi_dezsys", mods);
 
 			// Close the context when we're done
 			ctx.close();
 		} catch (NamingException e) {
-			System.out.println("Lookup failed: " + e);
+			System.out.println("Operation failed: " + e);
 		}
 	}
 }

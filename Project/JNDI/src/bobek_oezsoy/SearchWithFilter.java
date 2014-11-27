@@ -32,39 +32,50 @@ package bobek_oezsoy;
  */
 
 import javax.naming.*;
-import javax.naming.ldap.*;
+import javax.naming.directory.*;
+
 import java.util.Hashtable;
-import java.awt.Button;
 
 /**
- * Demonstrates how to look up an object.
+ * Demonstrates how to perform a search by specifying a search filter and search
+ * controls. Functionally identical to Search.java.
  * 
- * usage: java Lookup
+ * usage: java SearchWithFilter
  */
-class Lookup {
+class SearchWithFilter {
 	public static void main(String[] args) {
 
 		// Set up the environment for creating the initial context
 		Hashtable<String, Object> env = new Hashtable<String, Object>(11);
 		env.put(Context.INITIAL_CONTEXT_FACTORY,
 				"com.sun.jndi.ldap.LdapCtxFactory");
-		env.put(Context.PROVIDER_URL,
-				"ldap://192.168.64.135:389/dc=jndi_dezsys");
+		env.put(Context.PROVIDER_URL, "ldap://192.168.64.135:389");
 
 		try {
-			// Create the initial context
-			Context ctx = new InitialContext(env);
+			// Create initial context
+			DirContext ctx = new InitialDirContext(env);
 
-			// Perform lookup and cast to target type
-			LdapContext b = (LdapContext) ctx
-					.lookup("cn=Rosanna Lee,ou=People,o=jndi_dezsys");
+			// Specify the ids of the attributes to return
+			String[] attrIDs = { "sn", "telephonenumber", "golfhandicap",
+					"mail" };
+			SearchControls ctls = new SearchControls();
+			ctls.setReturningAttributes(attrIDs);
 
-			System.out.println(b);
+			// Specify the search filter to match
+			// Ask for objects with attribute sn == Smith and which have
+			// the "mail" attribute.
+			String filter = "(&(sn=Smith)(mail=*))";
+
+			// Search for objects using filter
+			NamingEnumeration answer = ctx.search("ou=People", filter, ctls);
+
+			// Print the answer
+			Search.printSearchEnumeration(answer);
 
 			// Close the context when we're done
 			ctx.close();
-		} catch (NamingException e) {
-			System.out.println("Lookup failed: " + e);
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 	}
 }

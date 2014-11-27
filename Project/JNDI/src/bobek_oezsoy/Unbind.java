@@ -32,16 +32,15 @@ package bobek_oezsoy;
  */
 
 import javax.naming.*;
-import javax.naming.ldap.*;
+
 import java.util.Hashtable;
-import java.awt.Button;
 
 /**
- * Demonstrates how to look up an object.
+ * Demonstrates how to remove a binding. (Use after Bind or Rebind example).
  * 
- * usage: java Lookup
+ * usage: java Unbind
  */
-class Lookup {
+class Unbind {
 	public static void main(String[] args) {
 
 		// Set up the environment for creating the initial context
@@ -50,21 +49,32 @@ class Lookup {
 				"com.sun.jndi.ldap.LdapCtxFactory");
 		env.put(Context.PROVIDER_URL,
 				"ldap://192.168.64.135:389/dc=jndi_dezsys");
+		env.put(Context.SECURITY_AUTHENTICATION, "simple");
+		env.put(Context.SECURITY_PRINCIPAL, "cn=admin,dc=jndi_dezsys");
+		env.put(Context.SECURITY_CREDENTIALS, "admin");
 
 		try {
 			// Create the initial context
 			Context ctx = new InitialContext(env);
 
-			// Perform lookup and cast to target type
-			LdapContext b = (LdapContext) ctx
-					.lookup("cn=Rosanna Lee,ou=People,o=jndi_dezsys");
+			// Remove the binding
+			ctx.unbind("cn=Favorite Fruit,ou=People,o=jndi_dezsys");
 
-			System.out.println(b);
+			// Check that it is gone
+			Object obj = null;
+			try {
+				obj = ctx.lookup("cn=Favorite Fruit,ou=People,o=jndi_dezsys");
+			} catch (NameNotFoundException ne) {
+				System.out.println("unbind successful");
+				return;
+			}
+
+			System.out.println("unbind failed; object still there: " + obj);
 
 			// Close the context when we're done
 			ctx.close();
 		} catch (NamingException e) {
-			System.out.println("Lookup failed: " + e);
+			System.out.println("Operation failed: " + e);
 		}
 	}
 }

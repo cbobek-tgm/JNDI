@@ -32,39 +32,25 @@ package bobek_oezsoy;
  */
 
 import javax.naming.*;
-import javax.naming.ldap.*;
-import java.util.Hashtable;
-import java.awt.Button;
 
 /**
- * Demonstrates how to look up an object.
- * 
- * usage: java Lookup
+ * This class is used by the Bind example. It is a referenceable class that can
+ * be stored by service providers like the LDAP and file system providers.
  */
-class Lookup {
-	public static void main(String[] args) {
+public class Fruit implements Referenceable {
+	String fruit;
 
-		// Set up the environment for creating the initial context
-		Hashtable<String, Object> env = new Hashtable<String, Object>(11);
-		env.put(Context.INITIAL_CONTEXT_FACTORY,
-				"com.sun.jndi.ldap.LdapCtxFactory");
-		env.put(Context.PROVIDER_URL,
-				"ldap://192.168.64.135:389/dc=jndi_dezsys");
+	public Fruit(String f) {
+		fruit = f;
+	}
 
-		try {
-			// Create the initial context
-			Context ctx = new InitialContext(env);
+	public Reference getReference() throws NamingException {
 
-			// Perform lookup and cast to target type
-			LdapContext b = (LdapContext) ctx
-					.lookup("cn=Rosanna Lee,ou=People,o=jndi_dezsys");
+		return new Reference(Fruit.class.getName(), new StringRefAddr("fruit",
+				fruit), FruitFactory.class.getName(), null); // factory location
+	}
 
-			System.out.println(b);
-
-			// Close the context when we're done
-			ctx.close();
-		} catch (NamingException e) {
-			System.out.println("Lookup failed: " + e);
-		}
+	public String toString() {
+		return fruit;
 	}
 }

@@ -32,16 +32,16 @@ package bobek_oezsoy;
  */
 
 import javax.naming.*;
-import javax.naming.ldap.*;
+
 import java.util.Hashtable;
-import java.awt.Button;
 
 /**
- * Demonstrates how to look up an object.
+ * Demonstrates how to destroy a subcontext called "ou=NewOu". (Run this after
+ * running Create)
  * 
- * usage: java Lookup
+ * usage: java Destroy
  */
-class Lookup {
+class Destroy {
 	public static void main(String[] args) {
 
 		// Set up the environment for creating the initial context
@@ -50,21 +50,30 @@ class Lookup {
 				"com.sun.jndi.ldap.LdapCtxFactory");
 		env.put(Context.PROVIDER_URL,
 				"ldap://192.168.64.135:389/dc=jndi_dezsys");
+		env.put(Context.SECURITY_AUTHENTICATION, "simple");
+		env.put(Context.SECURITY_PRINCIPAL, "cn=admin,dc=jndi_dezsys");
+		env.put(Context.SECURITY_CREDENTIALS, "admin");
 
 		try {
 			// Create the initial context
 			Context ctx = new InitialContext(env);
 
-			// Perform lookup and cast to target type
-			LdapContext b = (LdapContext) ctx
-					.lookup("cn=Rosanna Lee,ou=People,o=jndi_dezsys");
+			// Destroy the context
+			ctx.destroySubcontext("ou=NewOu,o=jndi_dezsys");
 
-			System.out.println(b);
+			// Check that it has been destroyed by listing its parent
+			NamingEnumeration list = ctx.list("");
+
+			// Go through each item in list
+			while (list.hasMore()) {
+				NameClassPair nc = (NameClassPair) list.next();
+				System.out.println(nc);
+			}
 
 			// Close the context when we're done
 			ctx.close();
 		} catch (NamingException e) {
-			System.out.println("Lookup failed: " + e);
+			System.out.println("destroy failed: " + e);
 		}
 	}
 }

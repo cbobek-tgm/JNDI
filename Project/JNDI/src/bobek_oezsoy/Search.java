@@ -32,16 +32,30 @@ package bobek_oezsoy;
  */
 
 import javax.naming.*;
-import javax.naming.ldap.*;
+import javax.naming.directory.*;
+
 import java.util.Hashtable;
-import java.awt.Button;
 
 /**
- * Demonstrates how to look up an object.
+ * Demonstrates how to perform a search by specifying a set of attributes to be
+ * matched. Returns selected attributes of objects that contain those matching
+ * attributes.
  * 
- * usage: java Lookup
+ * usage: java Search
  */
-class Lookup {
+class Search {
+	public static void printSearchEnumeration(NamingEnumeration retEnum) {
+		try {
+			while (retEnum.hasMore()) {
+				SearchResult sr = (SearchResult) retEnum.next();
+				System.out.println(">>>" + sr.getName());
+				GetAllAttrs.printAttrs(sr.getAttributes());
+			}
+		} catch (NamingException e) {
+			e.printStackTrace();
+		}
+	}
+
 	public static void main(String[] args) {
 
 		// Set up the environment for creating the initial context
@@ -52,19 +66,31 @@ class Lookup {
 				"ldap://192.168.64.135:389/dc=jndi_dezsys");
 
 		try {
-			// Create the initial context
-			Context ctx = new InitialContext(env);
+			// Create initial context
+			DirContext ctx = new InitialDirContext(env);
 
-			// Perform lookup and cast to target type
-			LdapContext b = (LdapContext) ctx
-					.lookup("cn=Rosanna Lee,ou=People,o=jndi_dezsys");
+			// Specify the ids of the attributes to return
+			String[] attrIDs = { "sn", "telephonenumber", "golfhandicap",
+					"mail" };
 
-			System.out.println(b);
+			// Specify the attributes to match
+			// Ask for objects that have the attribute
+			// sn == Smith and the "mail" attribute.
+			Attributes matchAttrs = new BasicAttributes(true); // ignore case
+			matchAttrs.put(new BasicAttribute("sn", "Smith"));
+			matchAttrs.put(new BasicAttribute("mail"));
+
+			// Search for objects that have those matching attributes
+			NamingEnumeration answer = ctx.search("ou=People", matchAttrs,
+					attrIDs);
+
+			// Print the answer
+			printSearchEnumeration(answer);
 
 			// Close the context when we're done
 			ctx.close();
-		} catch (NamingException e) {
-			System.out.println("Lookup failed: " + e);
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 	}
 }

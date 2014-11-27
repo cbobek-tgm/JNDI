@@ -32,16 +32,38 @@ package bobek_oezsoy;
  */
 
 import javax.naming.*;
-import javax.naming.ldap.*;
+import javax.naming.directory.*;
+
 import java.util.Hashtable;
-import java.awt.Button;
 
 /**
- * Demonstrates how to look up an object.
+ * Demonstrates how to perform a search and limit the number of results
+ * returned.
  * 
- * usage: java Lookup
+ * usage: java SearchCountLimit
  */
-class Lookup {
+class SearchCountLimit {
+	static int expected = 1;
+
+	public static void printSearchEnumeration(NamingEnumeration srhEnum) {
+		int count = 0;
+		try {
+			while (srhEnum.hasMore()) {
+				SearchResult sr = (SearchResult) srhEnum.next();
+				System.out.println(">>>" + sr.getName());
+				++count;
+			}
+			System.out.println("number of answers: " + count);
+		} catch (SizeLimitExceededException e) {
+			if (count == expected)
+				System.out.println("number of answers: " + count);
+			else
+				e.printStackTrace();
+		} catch (NamingException e) {
+			e.printStackTrace();
+		}
+	}
+
 	public static void main(String[] args) {
 
 		// Set up the environment for creating the initial context
@@ -52,19 +74,24 @@ class Lookup {
 				"ldap://192.168.64.135:389/dc=jndi_dezsys");
 
 		try {
-			// Create the initial context
-			Context ctx = new InitialContext(env);
+			// Create initial context
+			DirContext ctx = new InitialDirContext(env);
 
-			// Perform lookup and cast to target type
-			LdapContext b = (LdapContext) ctx
-					.lookup("cn=Rosanna Lee,ou=People,o=jndi_dezsys");
+			// Set search controls to limit count to 'expected'
+			SearchControls ctls = new SearchControls();
+			ctls.setCountLimit(expected);
 
-			System.out.println(b);
+			// Search for objects with those matching attributes
+			NamingEnumeration answer = ctx.search("ou=People,o=jndi_dezsys",
+					"(sn=M*)", ctls);
+
+			// Print the answer
+			printSearchEnumeration(answer);
 
 			// Close the context when we're done
 			ctx.close();
-		} catch (NamingException e) {
-			System.out.println("Lookup failed: " + e);
+		} catch (Exception e) {
+			System.err.println(e);
 		}
 	}
 }

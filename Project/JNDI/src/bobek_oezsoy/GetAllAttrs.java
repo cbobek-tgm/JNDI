@@ -32,16 +32,37 @@ package bobek_oezsoy;
  */
 
 import javax.naming.*;
-import javax.naming.ldap.*;
+import javax.naming.directory.*;
+
 import java.util.Hashtable;
-import java.awt.Button;
 
 /**
- * Demonstrates how to look up an object.
+ * Demonstrates how to retrieve all attributes of a named object.
  * 
- * usage: java Lookup
+ * usage: java GetAllAttrs
  */
-class Lookup {
+class GetAllAttrs {
+	static void printAttrs(Attributes attrs) {
+		if (attrs == null) {
+			System.out.println("No attributes");
+		} else {
+			/* Print each attribute */
+			try {
+				for (NamingEnumeration ae = attrs.getAll(); ae.hasMore();) {
+					Attribute attr = (Attribute) ae.next();
+					System.out.println("attribute: " + attr.getID());
+
+					/* print each value */
+					for (NamingEnumeration e = attr.getAll(); e.hasMore(); System.out
+							.println("value: " + e.next()))
+						;
+				}
+			} catch (NamingException e) {
+				e.printStackTrace();
+			}
+		}
+	}
+
 	public static void main(String[] args) {
 
 		// Set up the environment for creating the initial context
@@ -53,18 +74,19 @@ class Lookup {
 
 		try {
 			// Create the initial context
-			Context ctx = new InitialContext(env);
+			DirContext ctx = new InitialDirContext(env);
 
-			// Perform lookup and cast to target type
-			LdapContext b = (LdapContext) ctx
-					.lookup("cn=Rosanna Lee,ou=People,o=jndi_dezsys");
+			// Get all the attributes of named object
+			Attributes answer = ctx
+					.getAttributes("cn=Ted Geisel, ou=People,o=jndi_dezsys");
 
-			System.out.println(b);
+			// Print the answer
+			printAttrs(answer);
 
 			// Close the context when we're done
 			ctx.close();
-		} catch (NamingException e) {
-			System.out.println("Lookup failed: " + e);
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 	}
 }
