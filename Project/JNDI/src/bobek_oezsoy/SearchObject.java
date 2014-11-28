@@ -49,7 +49,7 @@ class SearchObject {
 		Hashtable<String, Object> env = new Hashtable<String, Object>(11);
 		env.put(Context.INITIAL_CONTEXT_FACTORY,
 				"com.sun.jndi.ldap.LdapCtxFactory");
-		env.put(Context.PROVIDER_URL, "ldap://192.168.64.135:389");
+		env.put(Context.PROVIDER_URL, "ldap://192.168.64.135:389/dc=jndi_dezsys");
 
 		try {
 			// Create initial context
@@ -68,7 +68,7 @@ class SearchObject {
 			String filter = "(&(sn=Geisel)(mail=*))";
 
 			// Search subtree for objects using filter
-			NamingEnumeration answer = ctx.search("cn=Ted Geisel, ou=People",
+			NamingEnumeration answer = ctx.search("cn=Ted Geisel,ou=People,o=jndi_dezsys",
 					filter, ctls);
 
 			// Print the answer

@@ -42,7 +42,7 @@ import javax.naming.directory.InitialDirContext;
 import java.util.Hashtable;
 
 /**
- * Demonstrates how to add a binding to a context. (Use Rebind example to
+ * Demonstrates how to add a binding with atttributes to a context. (Use Rebind example to
  * overwrite binding; use Unbind to remove binding.)
  * 
  * usage: java Bind

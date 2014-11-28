@@ -42,7 +42,7 @@ import javax.naming.directory.InitialDirContext;
 import java.util.Hashtable;
 
 /**
- * Demonstrates how to overwrite an existing binding. (Use after Bind example;
+ * Demonstrates how to overwrite an existing binding with attributes. (Use after Bind example;
  * Use Unbind to remove binding).
  * 
  * usage: java Rebind

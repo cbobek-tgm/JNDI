@@ -49,7 +49,8 @@ class SearchWithFilter {
 		Hashtable<String, Object> env = new Hashtable<String, Object>(11);
 		env.put(Context.INITIAL_CONTEXT_FACTORY,
 				"com.sun.jndi.ldap.LdapCtxFactory");
-		env.put(Context.PROVIDER_URL, "ldap://192.168.64.135:389");
+		env.put(Context.PROVIDER_URL,
+				"ldap://192.168.64.135:389/dc=jndi_dezsys");
 
 		try {
 			// Create initial context
@@ -62,12 +63,12 @@ class SearchWithFilter {
 			ctls.setReturningAttributes(attrIDs);
 
 			// Specify the search filter to match
-			// Ask for objects with attribute sn == Smith and which have
+			// Ask for objects with attribute sn == Bohr and which have
 			// the "mail" attribute.
-			String filter = "(&(sn=Smith)(mail=*))";
+			String filter = "(&(sn=Bohr)(mail=*))";
 
 			// Search for objects using filter
-			NamingEnumeration answer = ctx.search("ou=People", filter, ctls);
+			NamingEnumeration answer = ctx.search("ou=People,o=jndi_dezsys", filter, ctls);
 
 			// Print the answer
 			Search.printSearchEnumeration(answer);

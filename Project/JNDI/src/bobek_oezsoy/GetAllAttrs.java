@@ -78,7 +78,7 @@ class GetAllAttrs {
 
 			// Get all the attributes of named object
 			Attributes answer = ctx
-					.getAttributes("cn=Ted Geisel, ou=People,o=jndi_dezsys");
+					.getAttributes("cn=Ted Geisel,ou=People,o=jndi_dezsys");
 
 			// Print the answer
 			printAttrs(answer);

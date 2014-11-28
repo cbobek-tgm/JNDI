@@ -75,13 +75,13 @@ class Search {
 
 			// Specify the attributes to match
 			// Ask for objects that have the attribute
-			// sn == Smith and the "mail" attribute.
+			// sn == Geisel and the "mail" attribute.
 			Attributes matchAttrs = new BasicAttributes(true); // ignore case
-			matchAttrs.put(new BasicAttribute("sn", "Smith"));
+			matchAttrs.put(new BasicAttribute("sn", "Geisel"));
 			matchAttrs.put(new BasicAttribute("mail"));
 
 			// Search for objects that have those matching attributes
-			NamingEnumeration answer = ctx.search("ou=People", matchAttrs,
+			NamingEnumeration answer = ctx.search("ou=People,o=jndi_dezsys", matchAttrs,
 					attrIDs);
 
 			// Print the answer
